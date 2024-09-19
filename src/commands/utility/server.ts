@@ -4,12 +4,12 @@ export const data = new SlashCommandBuilder()
   .setName("server")
   .setDescription("Muestra información del servidor");
 
-export async function execute(interaction: CommandInteraction) {
+export async function execute(interaction: CommandInteraction): Promise<void> {
   if (interaction.guild) {
     await interaction.reply(
-      `This server is ${interaction.guild.name} and has ${interaction.guild.memberCount} members.`
+      `Este servidor es ${interaction.guild.name} y tiene ${interaction.guild.memberCount} miembros. 🏠`
     );
   } else {
-    await interaction.reply("Guild information is not available.");
+    await interaction.reply("Guild information is not available. 😵‍💫");
   }
 }
