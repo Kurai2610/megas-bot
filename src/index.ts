@@ -1,11 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import dotenv from "dotenv";
-import { Events, GatewayIntentBits } from "discord.js";
-import { ExtendedClient } from "./client";
+import { Events } from "discord.js";
+import { client, ExtendedClient } from "./client";
 dotenv.config();
-
-const client = new ExtendedClient({ intents: [GatewayIntentBits.Guilds] });
 
 const folderPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(folderPath);
@@ -33,17 +31,6 @@ for (const folder of commandFolders) {
       });
   }
 }
-
-client.once(Events.ClientReady, () => {
-  console.log("✨ Bot is ready and operational! ✨");
-
-  if (client.user?.username !== "Sable") {
-    client.user
-      ?.setUsername("Sable")
-      .then((user) => console.log(`My new username is ${user.username}`))
-      .catch(console.error);
-  }
-});
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;

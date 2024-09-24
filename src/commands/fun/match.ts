@@ -30,7 +30,6 @@ export async function execute(interaction: CommandInteraction): Promise<void> {
 
   let percentage: string;
 
-  // IDs de los usuarios específicos
   const specialUser1Id = "780991353177243698";
   const specialUser2Id = "690544499037962242";
 

@@ -2,6 +2,7 @@ import {
   CommandInteraction,
   CommandInteractionOptionResolver,
   SlashCommandBuilder,
+  EmbedBuilder,
 } from "discord.js";
 
 export const data = new SlashCommandBuilder()
@@ -35,8 +36,18 @@ export async function execute(interaction: CommandInteraction): Promise<void> {
     url: string;
   };
 
-  await interaction.reply({
-    content: `Pregunta: ${question}\nRespuesta: ${data.response}`,
-    files: [data.url],
-  });
+  const botAvatarURL = interaction.client.user?.displayAvatarURL() || "";
+
+  const embed = new EmbedBuilder()
+    .setTitle("🎱 8ball")
+    .setDescription(`Pregunta: ${question}\nRespuesta: ${data.response}`)
+    .setImage(data.url)
+    .setColor(0xa67ba6)
+    .setFooter({
+      text: "Powered by @kurai26",
+      iconURL: botAvatarURL,
+    })
+    .setTimestamp();
+
+  await interaction.reply({ embeds: [embed] });
 }
