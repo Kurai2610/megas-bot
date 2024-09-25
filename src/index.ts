@@ -3,6 +3,7 @@ import path from "node:path";
 import dotenv from "dotenv";
 import { Events } from "discord.js";
 import { client, ExtendedClient } from "./client";
+import { autocompleteArtist } from "./commands/fun/artist";
 dotenv.config();
 
 const folderPath = path.join(__dirname, "commands");
@@ -31,6 +32,15 @@ for (const folder of commandFolders) {
       });
   }
 }
+
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isAutocomplete()) return;
+
+  if (interaction.commandName === "artist") {
+    await autocompleteArtist(interaction);
+  }
+  return;
+});
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;

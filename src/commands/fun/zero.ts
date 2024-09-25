@@ -1,6 +1,4 @@
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
-import dotenv from "dotenv";
-dotenv.config();
 
 export const data = new SlashCommandBuilder()
   .setName("zero")

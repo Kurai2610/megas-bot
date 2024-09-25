@@ -3,31 +3,7 @@ import {
   CommandInteraction,
   CommandInteractionOptionResolver,
 } from "discord.js";
-import { config } from "dotenv";
-import { track, lyrics } from "../../types/musixmatch";
-
-config();
-
-const SPOTIFY_CLIENT_ID = process.env["SPOTIFY_CLIENT_ID"];
-const SPOTIFY_CLIENT_SECRET = process.env["SPOTIFY_CLIENT_SECRET"];
-const MUSIXMATCH_API_KEY = process.env["MUSIXMATCH_API_KEY"];
-
-async function getSpotifyAccessToken(): Promise<string> {
-  const response = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(
-        `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`
-      ).toString("base64")}`,
-    },
-    body: new URLSearchParams({
-      grant_type: "client_credentials",
-    }),
-  });
-  const data: { access_token: string } = (await response.json()) as any;
-  return data.access_token;
-}
+import { getTrack, getLyrics, getSpotifyToken } from "../../utils/music";
 
 async function getRandomSongFromPlaylist(playlistId: string): Promise<{
   name: string;
@@ -36,7 +12,7 @@ async function getRandomSongFromPlaylist(playlistId: string): Promise<{
   url: string;
   image: string;
 }> {
-  const accessToken = await getSpotifyAccessToken();
+  const accessToken = await getSpotifyToken();
   const response = await fetch(
     `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
     {
@@ -64,76 +40,6 @@ async function getRandomSongFromPlaylist(playlistId: string): Promise<{
     url: randomTrack.external_urls.spotify,
     image: randomTrack.album.images[0].url,
   };
-}
-
-async function getTrack(
-  trackName: string,
-  artistName: string
-): Promise<number | null> {
-  try {
-    const response = await fetch(
-      `https://api.musixmatch.com/ws/1.1/track.search?q_track=${encodeURIComponent(
-        trackName
-      )}&q_artist=${encodeURIComponent(
-        artistName
-      )}&apikey=${MUSIXMATCH_API_KEY}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`Error fetching track: ${response.statusText}`);
-    }
-
-    const json = await response.json();
-
-    const trackResponse: track.TrackResponse = track.Convert.toTrackResponse(
-      JSON.stringify(json)
-    );
-
-    if (trackResponse.message.body.track_list.length === 0) {
-      return null;
-    }
-
-    return trackResponse.message.body.track_list[0].track.commontrack_id;
-  } catch (error) {
-    console.error("Error in getTrack:", error);
-    return null;
-  }
-}
-
-function formatLyrics(lyrics: string): string {
-  const cleanedLyrics = lyrics
-    .split("\n")
-    .filter(
-      (line) =>
-        !line.includes("******* This Lyrics is NOT for Commercial use *******")
-    )
-    .join("\n");
-
-  return `"${cleanedLyrics}"`;
-}
-
-async function getLyrics(commontrack_id: number): Promise<string> {
-  try {
-    const response = await fetch(
-      `https://api.musixmatch.com/ws/1.1/track.lyrics.get?commontrack_id=${commontrack_id}&apikey=${MUSIXMATCH_API_KEY}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`Error fetching lyrics: ${response.statusText}`);
-    }
-
-    const json = await response.json();
-
-    const lyricsResponse: lyrics.LyricsResponse =
-      lyrics.Convert.toLyricsResponse(JSON.stringify(json));
-
-    const rawLyrics = lyricsResponse.message.body.lyrics.lyrics_body;
-
-    return formatLyrics(rawLyrics);
-  } catch (error) {
-    console.error("Error in getLyrics:", error);
-    throw new Error("Failed to get lyrics");
-  }
 }
 
 export const data = new SlashCommandBuilder()

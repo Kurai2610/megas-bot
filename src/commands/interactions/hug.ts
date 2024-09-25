@@ -4,9 +4,6 @@ import {
   CommandInteractionOptionResolver,
 } from "discord.js";
 import { Convert, type GIFResponse } from "../../types/giphy";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const GIPHY_API_KEY = process.env["GIPHY_API_KEY"];
 
